@@ -2,15 +2,15 @@
 
 namespace LibraryManagment.Interfaces
 {
-    public interface IBookRepository
+    public interface ILibraryService
     {
-        void Add(Book book);
+        void Add(string title, string author, DateOnly year);
         void Delete(Guid id);
         void ChangeStatus(Guid id);
 
-        IEnumerable<Book> GetAll();
-        IEnumerable<Book> GetAllAvaliable();
         IEnumerable<Book> SearchByTitle(string title);
         IEnumerable<Book> SearchByAuthor(string author);
+        IEnumerable<Book> GetAll();
+        IEnumerable<Book> GetAllAvaliable();
     }
 }

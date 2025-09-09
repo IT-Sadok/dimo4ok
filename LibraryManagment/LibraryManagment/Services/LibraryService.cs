@@ -1,16 +1,15 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
-using LibraryManagment.Repositories;
 
 namespace LibraryManagment.Services
 {
-    public class BookService : IBookService
+    public class LibraryService : ILibraryService
     {
-        private readonly IBookRepository repository;
+        private readonly ILabrary library;
 
-        public BookService(IBookRepository repository)
+        public LibraryService(ILabrary library)
         {
-            this.repository = repository;
+            this.library = library;
         }
 
         private void ReturnError(string error)
@@ -74,17 +73,9 @@ namespace LibraryManagment.Services
             return true;
         }
 
-        private bool ValidateData(string title, string author, DateOnly year)
-        {
-            if (!ValidateTitle(title) || !ValidateAuthor(author) || !ValidateYear(year))
-                return false;
-
-            return true;
-        }
-
         private bool BookExists(Guid id)
         {
-            if (!((BookRepository)repository).BookExists(id))
+            if (!((Library.Library)library).BookExists(id))
             {
                 ReturnError("Book with the given Id was not found.");
                 return false;
@@ -95,10 +86,10 @@ namespace LibraryManagment.Services
 
         public void Add(string title, string author, DateOnly year)
         {
-            if (!ValidateData(title, author, year))
+            if (!ValidateTitle(title) || !ValidateAuthor(author) || !ValidateYear(year))
                 return;
 
-            if(((BookRepository)repository).IsDuplicatedBook(title, author))
+            if(((Library.Library)library).IsDuplicatedBook(title, author))
             {
                 ReturnError("This book already exists");
                 return;
@@ -111,7 +102,7 @@ namespace LibraryManagment.Services
                 Year = year
             };
 
-            repository.Add(newBook);
+            library.Add(newBook);
             ReturnSuccess("The book added successful!");
         }
 
@@ -120,7 +111,7 @@ namespace LibraryManagment.Services
             if (!BookExists(id))
                 return;
 
-            repository.ChangeStatus(id);
+            library.ChangeStatus(id);
             ReturnSuccess("The status of book was successfully changed");
         }
 
@@ -129,13 +120,13 @@ namespace LibraryManagment.Services
             if (!BookExists(id))
                 return;
 
-            repository.Delete(id);
+            library.Delete(id);
             ReturnSuccess("The book deleted successful!");
         }
 
         public IEnumerable<Book> GetAll()
         {
-            var allBooks = repository.GetAll();
+            var allBooks = library.GetAll();
             if (!allBooks.Any())
                 ReturnError("No books found.");
             else
@@ -146,7 +137,7 @@ namespace LibraryManagment.Services
 
         public IEnumerable<Book> GetAllAvaliable()
         {
-            var avaliableBooks = repository.GetAllAvaliable();
+            var avaliableBooks = library.GetAllAvaliable();
             if (!avaliableBooks.Any())
                 ReturnError("No books avaliable.");
             else
@@ -160,7 +151,7 @@ namespace LibraryManagment.Services
             if (!ValidateAuthor(author))
                 return null;
 
-            var books = repository.SearchByAuthor(author);
+            var books = library.SearchByAuthor(author);
 
             if (!books.Any())
                 ReturnError("No books found for this author.");
@@ -175,7 +166,7 @@ namespace LibraryManagment.Services
             if (!ValidateTitle(title))
                 return null;
 
-            var books = repository.SearchByTitle(title);
+            var books = library.SearchByTitle(title);
 
             if (!books.Any())
                 ReturnError("No books found for this title.");
