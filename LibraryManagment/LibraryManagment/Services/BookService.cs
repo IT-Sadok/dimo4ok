@@ -1,5 +1,6 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
+using LibraryManagment.Repositories;
 
 namespace LibraryManagment.Services
 {
@@ -83,7 +84,7 @@ namespace LibraryManagment.Services
 
         private bool BookExists(Guid id)
         {
-            if (!repository.BookExists(id))
+            if (!((BookRepository)repository).BookExists(id))
             {
                 ReturnError("Book with the given Id was not found.");
                 return false;
@@ -96,6 +97,12 @@ namespace LibraryManagment.Services
         {
             if (!ValidateData(title, author, year))
                 return;
+
+            if(((BookRepository)repository).IsDuplicatedBook(title, author))
+            {
+                ReturnError("This book already exists");
+                return;
+            }
 
             var newBook = new Book
             {
