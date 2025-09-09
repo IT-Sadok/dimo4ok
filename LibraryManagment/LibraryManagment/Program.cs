@@ -1,9 +1,11 @@
-﻿using LibraryManagment.Models;
+﻿using LibraryManagment.Library;
+using LibraryManagment.Models;
 using LibraryManagment.Repositories;
 using LibraryManagment.Services;
 
-BookRepository bookRepository = new BookRepository(@"D:\Answer\library.json");
-BookService bookService = new BookService(bookRepository);
+LibraryRepository bookRepository = new LibraryRepository(@"D:\Answer\library.json");
+Library library = new Library(bookRepository);
+LibraryService bookService = new LibraryService(library);
 
 while (true)
 {
