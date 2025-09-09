@@ -13,5 +13,10 @@ namespace LibraryManagment.Models
         public string Author { get; set; } = null!;
         public DateOnly Year { get; set; }
         public bool Available { get; set; } = true;
+
+        public override string ToString()
+        {
+            return $"Id: {Id}, Title: {Title}, Author: {Author}, Year: {Year}, Available: {Available}";
+        }
     }
 }
