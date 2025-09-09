@@ -1,10 +1,5 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagment.Services
 {
@@ -21,6 +16,15 @@ namespace LibraryManagment.Services
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(error);
+            Console.WriteLine();
+            Console.ResetColor();
+        }
+
+        private void ReturnSuccess(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(message);
+            Console.WriteLine();
             Console.ResetColor();
         }
 
@@ -101,32 +105,47 @@ namespace LibraryManagment.Services
             };
 
             repository.Add(newBook);
+            ReturnSuccess("The book added successful!");
         }
 
         public void ChangeStatus(Guid id)
         {
-            if(!BookExists(id))
+            if (!BookExists(id))
                 return;
 
             repository.ChangeStatus(id);
+            ReturnSuccess("The status of book was successfully changed");
         }
 
         public void Delete(Guid id)
         {
-            if (!repository.BookExists(id))
+            if (!BookExists(id))
                 return;
 
             repository.Delete(id);
+            ReturnSuccess("The book deleted successful!");
         }
 
         public IEnumerable<Book> GetAll()
         {
-            return repository.GetAll();
+            var allBooks = repository.GetAll();
+            if (!allBooks.Any())
+                ReturnError("No books found.");
+            else
+                ReturnSuccess("The books was found.");
+
+            return allBooks;
         }
 
         public IEnumerable<Book> GetAllAvaliable()
         {
-            return repository.GetAllAvaliable();
+            var avaliableBooks = repository.GetAllAvaliable();
+            if (!avaliableBooks.Any())
+                ReturnError("No books avaliable.");
+            else
+                ReturnSuccess("The avaliable books was found.");
+
+            return avaliableBooks;
         }
 
         public IEnumerable<Book> SearchByAuthor(string author)
@@ -137,7 +156,9 @@ namespace LibraryManagment.Services
             var books = repository.SearchByAuthor(author);
 
             if (!books.Any())
-                ReturnError("Books not found");
+                ReturnError("No books found for this author.");
+            else
+                ReturnSuccess("The books was found!");
 
             return books;
         }
@@ -150,7 +171,9 @@ namespace LibraryManagment.Services
             var books = repository.SearchByTitle(title);
 
             if (!books.Any())
-                ReturnError("Books not found");
+                ReturnError("No books found for this title.");
+            else
+                ReturnSuccess("The books was found!");
 
             return books;
         }
