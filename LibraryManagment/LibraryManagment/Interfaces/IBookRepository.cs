@@ -12,7 +12,5 @@ namespace LibraryManagment.Interfaces
         IEnumerable<Book> GetAllAvaliable();
         IEnumerable<Book> SearchByTitle(string title);
         IEnumerable<Book> SearchByAuthor(string author);
-
-        bool BookExists(Guid id);
     }
 }

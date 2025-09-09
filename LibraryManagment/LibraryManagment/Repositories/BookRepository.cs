@@ -34,6 +34,7 @@ namespace LibraryManagment.Repositories
             var booksJson = JsonSerializer.Serialize(books, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(filePath, booksJson);
         }
+
         private Book GetById(Guid id)
         {
             return books.First(x => x.Id == id);
@@ -42,6 +43,11 @@ namespace LibraryManagment.Repositories
         public bool BookExists(Guid id)
         {
             return books.Exists(x => x.Id == id);
+        }
+
+        public bool IsDuplicatedBook(string title, string author)
+        {
+            return books.Any(x => x.Title == title && x.Author == author);
         }
 
         public void Add(Book book)
