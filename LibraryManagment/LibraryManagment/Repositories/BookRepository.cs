@@ -1,0 +1,100 @@
+﻿using LibraryManagment.Interfaces;
+using LibraryManagment.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Threading.Tasks;
+using System.Xml;
+
+namespace LibraryManagment.Repositories
+{
+    public class BookRepository : IBookRepository
+    {
+        private readonly string filePath;
+        private readonly List<Book> books;
+
+        public BookRepository(string filePath)
+        {
+            this.filePath = filePath;
+            books = ReadFile(filePath);
+        }
+
+        private List<Book> ReadFile(string filePath)
+        {
+            if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
+            {
+                File.WriteAllText(filePath, "[]");
+                return new List<Book>();
+            }
+            else
+            {
+                var booksJson = File.ReadAllText(filePath);
+                return JsonSerializer.Deserialize<List<Book>>(booksJson);
+            }
+        }
+
+        private void SaveToFile(List<Book> books)
+        {
+            var booksJson = JsonSerializer.Serialize(books);
+            File.WriteAllText(filePath, booksJson);
+        }
+
+        public bool BookExists(Guid id)
+        {
+            return books.Exists(x => x.Id == id);
+        }
+
+        public void Add(Book book)
+        {
+            books.Add(book);
+            SaveToFile(books);
+        }
+
+        public void ChangeStatus(Guid id)
+        {
+            var bookForChange = GetById(id);
+
+            if(bookForChange.Available == true)
+                bookForChange.Available = false;
+            else
+                bookForChange.Available = true;
+
+            SaveToFile(books);
+        }
+
+        public void Delete(Guid id)
+        {
+            var bookToDelete = GetById(id);
+            books.Remove(bookToDelete);
+            SaveToFile(books);
+        }
+
+        public IEnumerable<Book> GetAll()
+        {
+            return books;
+        }
+
+        public IEnumerable<Book> GetAllAvaliable()
+        {
+            return books.Where(x => x.Available == true);
+        }
+
+        public Book GetById(Guid id)
+        {
+            return books.First(x => x.Id == id);
+        }
+
+        public IEnumerable<Book> SearchByAuthor(string author)
+        {
+            return books.Where(x => x.Author == author);
+        }
+
+        public IEnumerable<Book> SearchByTitle(string title)
+        {
+            return books.Where(x => x.Title == title);
+        }
+    }
+}
