@@ -1,9 +1,4 @@
 ﻿using LibraryManagment.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagment.Interfaces
 {
@@ -12,8 +7,6 @@ namespace LibraryManagment.Interfaces
         void Add(Book book);
         void Delete(Guid id);
         void ChangeStatus(Guid id);
-
-        Book GetById(Guid id);
 
         IEnumerable<Book> GetAll();
         IEnumerable<Book> GetAllAvaliable();

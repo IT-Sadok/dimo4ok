@@ -1,13 +1,6 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace LibraryManagment.Repositories
 {
@@ -38,8 +31,12 @@ namespace LibraryManagment.Repositories
 
         private void SaveToFile(List<Book> books)
         {
-            var booksJson = JsonSerializer.Serialize(books);
+            var booksJson = JsonSerializer.Serialize(books, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(filePath, booksJson);
+        }
+        private Book GetById(Guid id)
+        {
+            return books.First(x => x.Id == id);
         }
 
         public bool BookExists(Guid id)
@@ -80,11 +77,6 @@ namespace LibraryManagment.Repositories
         public IEnumerable<Book> GetAllAvaliable()
         {
             return books.Where(x => x.Available == true);
-        }
-
-        public Book GetById(Guid id)
-        {
-            return books.First(x => x.Id == id);
         }
 
         public IEnumerable<Book> SearchByAuthor(string author)
