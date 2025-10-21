@@ -1,16 +1,16 @@
 ﻿using LibraryManagment.Models;
+using LibraryManagment.Models.dto;
 
-namespace LibraryManagment.Interfaces
+namespace LibraryManagment.Interfaces;
+
+public interface ILibraryService
 {
-    public interface ILibraryService
-    {
-        void Add(string title, string author, DateOnly year);
-        void Delete(Guid id);
-        void ChangeStatus(Guid id);
+    void Add(CreateBookDTO dto);
+    void Delete(Guid id);
+    void ChangeStatus(Guid id);
 
-        IEnumerable<Book> SearchByTitle(string title);
-        IEnumerable<Book> SearchByAuthor(string author);
-        IEnumerable<Book> GetAll();
-        IEnumerable<Book> GetAllAvaliable();
-    }
+    IEnumerable<BookDto> SearchByTitle(string title);
+    IEnumerable<BookDto> SearchByAuthor(string author);
+    IEnumerable<BookDto> GetAll();
+    IEnumerable<BookDto> GetAllAvaliable();
 }
