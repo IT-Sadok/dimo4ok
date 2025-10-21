@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace LibraryManagment.Repositories;
 
-public class JsonRepository : IDataRepository
+public class JsonRepository : IDataStorage
 {
     private readonly string filePath;
     private readonly List<Book> books;

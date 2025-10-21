@@ -2,7 +2,7 @@
 
 namespace LibraryManagment.Interfaces;
 
-public interface ILibraryManager
+public interface IBookRepository
 {
     void Add(Book book);
     void Delete(Guid id);

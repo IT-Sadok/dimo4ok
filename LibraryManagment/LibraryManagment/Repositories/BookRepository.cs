@@ -1,14 +1,14 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
 
-namespace LibraryManagment.Services;
+namespace LibraryManagment.Repositories;
 
-public class LibraryManager : ILibraryManager
+public class BookRepository : IBookRepository
 {
-    private readonly IDataRepository repository;
+    private readonly IDataStorage repository;
     private List<Book> books;
 
-    public LibraryManager(IDataRepository repository)
+    public BookRepository(IDataStorage repository)
     {
         this.repository = repository;
         books = repository.GetAll().ToList();

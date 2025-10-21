@@ -1,16 +1,17 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
 using LibraryManagment.Models.dto;
+using LibraryManagment.Repositories;
 
 namespace LibraryManagment.Services;
 
 public class LibraryService : ILibraryService
 {
-    private readonly ILibraryManager libraryManager;
+    private readonly IBookRepository bookRepository;
 
-    public LibraryService(ILibraryManager libraryManager)
+    public LibraryService(IBookRepository bookRepository)
     {
-        this.libraryManager = libraryManager;
+        this.bookRepository = bookRepository;
     }
 
     private void ReturnError(string error)
@@ -76,7 +77,7 @@ public class LibraryService : ILibraryService
 
     private bool BookExists(Guid id)
     {
-        if (!((LibraryManager)libraryManager).BookExists(id))
+        if (!((BookRepository)bookRepository).BookExists(id))
         {
             ReturnError("Book with the given Id was not found.");
             return false;
@@ -90,7 +91,7 @@ public class LibraryService : ILibraryService
         if (!ValidateTitle(dto.Title) || !ValidateAuthor(dto.Author) || !ValidateDate(dto.Date))
             return;
 
-        if (((LibraryManager)libraryManager).IsDuplicatedBook(dto.Title, dto.Author))
+        if (((BookRepository)bookRepository).IsDuplicatedBook(dto.Title, dto.Author))
         {
             ReturnError("This book already exists");
             return;
@@ -103,7 +104,7 @@ public class LibraryService : ILibraryService
             Date = dto.Date
         };
 
-        libraryManager.Add(newBook);
+        bookRepository.Add(newBook);
         ReturnSuccess("The book added successful!");
     }
 
@@ -112,7 +113,7 @@ public class LibraryService : ILibraryService
         if (!BookExists(id))
             return;
 
-        libraryManager.ChangeStatus(id);
+        bookRepository.ChangeStatus(id);
         ReturnSuccess("The status of book was successfully changed");
     }
 
@@ -121,13 +122,13 @@ public class LibraryService : ILibraryService
         if (!BookExists(id))
             return;
 
-        libraryManager.Delete(id);
+        bookRepository.Delete(id);
         ReturnSuccess("The book deleted successful!");
     }
 
     public IEnumerable<BookDto> GetAll()
     {
-        var allBooks = libraryManager.GetAll();
+        var allBooks = bookRepository.GetAll();
         if (!allBooks.Any())
             ReturnError("No books found.");
         else
@@ -145,7 +146,7 @@ public class LibraryService : ILibraryService
 
     public IEnumerable<BookDto> GetAllAvaliable()
     {
-        var avaliableBooks = libraryManager.GetAllAvaliable();
+        var avaliableBooks = bookRepository.GetAllAvaliable();
         if (!avaliableBooks.Any())
             ReturnError("No books avaliable.");
         else
@@ -166,7 +167,7 @@ public class LibraryService : ILibraryService
         if (!ValidateAuthor(author))
             return null;
 
-        var books = libraryManager.SearchByAuthor(author);
+        var books = bookRepository.SearchByAuthor(author);
 
         if (!books.Any())
             ReturnError("No books found for this author.");
@@ -188,7 +189,7 @@ public class LibraryService : ILibraryService
         if (!ValidateTitle(title))
             return null;
 
-        var books = libraryManager.SearchByTitle(title);
+        var books = bookRepository.SearchByTitle(title);
 
         if (!books.Any())
             ReturnError("No books found for this title.");

@@ -2,7 +2,7 @@
 
 namespace LibraryManagment.Interfaces;
 
-public interface IDataRepository
+public interface IDataStorage
 {
     void SaveToFile(IEnumerable<Book> books);
     IEnumerable<Book> GetAll();
