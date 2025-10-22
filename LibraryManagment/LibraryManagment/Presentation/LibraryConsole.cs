@@ -1,5 +1,7 @@
-﻿using LibraryManagment.Models.dto;
+﻿using LibraryManagment.Models;
+using LibraryManagment.Models.dto;
 using LibraryManagment.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LibraryManagment.Presentation;
 
@@ -85,13 +87,13 @@ public class LibraryConsole
 
     void AddBook()
     {
-        CreateBookDTO createBookDTO = new CreateBookDTO();
+        var createBookModel = new CreateBookModel();
 
         Console.Write("Enter the book title: ");
-        createBookDTO.Title = Console.ReadLine();
+        createBookModel.Title = Console.ReadLine();
 
         Console.Write("Enter the book author: ");
-        createBookDTO.Author = Console.ReadLine();
+        createBookModel.Author = Console.ReadLine();
 
         Console.Write("Enter the book year: ");
         if (!DateOnly.TryParse(Console.ReadLine(), out DateOnly year))
@@ -102,10 +104,12 @@ public class LibraryConsole
             return;
         }
 
-        createBookDTO.Date = year;
+        createBookModel.DatePublished = year;
 
         Console.WriteLine();
-        libraryService.Add(createBookDTO);
+
+        var result = libraryService.Add(createBookModel);
+        DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
     void DeleteBook()
@@ -114,28 +118,26 @@ public class LibraryConsole
         if (!Guid.TryParse(Console.ReadLine(), out Guid id))
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\nInvalid year format.\n");
+            Console.WriteLine("\nInvalid id format.\n");
             Console.ResetColor();
             return;
         }
 
-        libraryService.Delete(id);
-    }
-
-    void DisplayBooks(IEnumerable<BookDto> books)
-    {
-        foreach (var book in books)
-        {
-            Console.WriteLine(book);
-        }
+        var result = libraryService.Delete(id);
+        DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
     void DisplayAllBooks()
     {
-        var books = libraryService.GetAll();
+        var result = libraryService.GetAll();
 
-        Console.WriteLine("The list of books:");
-        DisplayBooks(books);
+        DisplayResultMessage(result.IsSuccess, result.Message);
+
+        if(result.IsSuccess)
+        {
+            Console.WriteLine("The list of books:");
+            DisplayBooks(result.Data);
+        }
     }
 
     void DisplayBooksByAuthor()
@@ -143,8 +145,15 @@ public class LibraryConsole
         Console.Write("Enter the book author: ");
         string author = Console.ReadLine();
 
-        var booksByAthor = libraryService.SearchByAuthor(author);
-        DisplayBooks(booksByAthor);
+        var result = libraryService.SearchByAuthor(author);
+
+        DisplayResultMessage(result.IsSuccess, result.Message);
+
+        if(result.IsSuccess)
+        {
+            Console.WriteLine("The list of books by author:");
+            DisplayBooks(result.Data);
+        }
     }
 
     void DisplayBooksByTitle()
@@ -152,16 +161,28 @@ public class LibraryConsole
         Console.Write("Enter the book title: ");
         string title = Console.ReadLine();
 
-        var booksByTitle = libraryService.SearchByTitle(title);
-        DisplayBooks(booksByTitle);
+        var result = libraryService.SearchByTitle(title);
+
+        DisplayResultMessage(result.IsSuccess, result.Message);
+
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("The list of books by title:");
+            DisplayBooks(result.Data);
+        }
     }
 
     void DisplayAvaliableBooks()
     {
-        var availableBooks = libraryService.GetAllAvaliable();
+        var result = libraryService.GetAllAvaliable();
 
-        Console.WriteLine("The list of available books:");
-        DisplayBooks(availableBooks);
+        DisplayResultMessage(result.IsSuccess, result.Message);
+
+        if (result.IsSuccess)
+        {
+            Console.WriteLine("The list of available books:");
+            DisplayBooks(result.Data);
+        }
     }
 
     void ChangeBookStatus()
@@ -175,7 +196,36 @@ public class LibraryConsole
             return;
         }
 
-        libraryService.ChangeStatus(id);
-        DisplayAllBooks();
+        var result = libraryService.ChangeStatus(id);
+
+        DisplayResultMessage(result.IsSuccess, result.Message);
+
+        if(result.IsSuccess)
+            DisplayAllBooks();
+    }
+
+    void DisplayBooks(IEnumerable<BookModel> books)
+    {
+        foreach (var book in books)
+        {
+            Console.WriteLine(book);
+        }
+    }
+
+    public void DisplayResultMessage(bool success, string message)
+    {
+        if (!success)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.WriteLine();
+            Console.ResetColor();
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine(message);
+        Console.WriteLine();
+        Console.ResetColor();
     }
 }

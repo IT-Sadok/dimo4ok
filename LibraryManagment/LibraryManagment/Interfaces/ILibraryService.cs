@@ -5,12 +5,12 @@ namespace LibraryManagment.Interfaces;
 
 public interface ILibraryService
 {
-    void Add(CreateBookDTO dto);
-    void Delete(Guid id);
-    void ChangeStatus(Guid id);
+    Result Add(CreateBookModel dto);
+    Result Delete(Guid id);
+    Result ChangeStatus(Guid id);
 
-    IEnumerable<BookDto> SearchByTitle(string title);
-    IEnumerable<BookDto> SearchByAuthor(string author);
-    IEnumerable<BookDto> GetAll();
-    IEnumerable<BookDto> GetAllAvaliable();
+    Result<IEnumerable<BookModel>> SearchByTitle(string title);
+    Result<IEnumerable<BookModel>> SearchByAuthor(string author);
+    Result<IEnumerable<BookModel>> GetAll();
+    Result<IEnumerable<BookModel>> GetAllAvaliable();
 }

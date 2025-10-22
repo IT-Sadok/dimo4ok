@@ -1,7 +1,7 @@
 ﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models;
 using LibraryManagment.Models.dto;
-using LibraryManagment.Repositories;
+using System.Reflection;
 
 namespace LibraryManagment.Services;
 
@@ -14,195 +14,169 @@ public class LibraryService : ILibraryService
         this.bookRepository = bookRepository;
     }
 
-    private void ReturnError(string error)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(error);
-        Console.WriteLine();
-        Console.ResetColor();
-    }
-
-    private void ReturnSuccess(string message)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine(message);
-        Console.WriteLine();
-        Console.ResetColor();
-    }
-
-    private bool ValidateTitle(string title)
+    private (bool isValid, string? Error) ValidateTitle(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
-        {
-            ReturnError("Book title cannot be empty.");
-            return false;
-        }
+            return (false, "Book title cannot be empty.");
 
         if (title.Length < 2 || title.Length > 100)
-        {
-            ReturnError("Book title must be between 2 and 100 characters.");
-            return false;
-        }
+            return (false, "Book title must be between 2 and 100 characters.");
 
-        return true;
+        return (true, null);
     }
 
-    private bool ValidateAuthor(string author)
+    private (bool isValid, string? Error) ValidateAuthor(string author)
     {
         if (string.IsNullOrWhiteSpace(author))
-        {
-            ReturnError("Book author cannot be empty.");
-            return false;
-        }
+            return (false, "Book author cannot be empty.");
 
         if (author.Length < 2 || author.Length > 50)
-        {
-            ReturnError("Book author must be between 2 and 50 characters.");
-            return false;
-        }
+            return (false, "Book author must be between 2 and 50 characters.");
 
-        return true;
+        return (true, null);
     }
 
-    private bool ValidateDate(DateOnly date)
+    private (bool isValid, string? Error) ValidateDatePublished(DateOnly datePublished)
     {
-        if (date > DateOnly.FromDateTime(DateTime.Now))
-        {
-            ReturnError("Book date cannot be in the future.");
-            return false;
-        }
+        if (datePublished > DateOnly.FromDateTime(DateTime.Now))
+            return (false, "Book date cannot be in the future.");
 
-        return true;
+        return (true, null);
     }
 
-    private bool BookExists(Guid id)
+    private (bool isExists, string? Error) BookExists(Guid id)
     {
-        if (!((BookRepository)bookRepository).BookExists(id))
-        {
-            ReturnError("Book with the given Id was not found.");
-            return false;
-        }
+        if (!bookRepository.BookExists(id))
+            return (false, "Book with the given Id was not found.");
 
-        return true;
+        return (true, null);
     }
 
-    public void Add(CreateBookDTO dto)
+    public Result Add(CreateBookModel model)
     {
-        if (!ValidateTitle(dto.Title) || !ValidateAuthor(dto.Author) || !ValidateDate(dto.Date))
-            return;
+        var titleValidation = ValidateTitle(model.Title);
+        if (!titleValidation.isValid)
+            return Result.Fail(titleValidation.Error);
 
-        if (((BookRepository)bookRepository).IsDuplicatedBook(dto.Title, dto.Author))
-        {
-            ReturnError("This book already exists");
-            return;
-        }
+        var authorValidaiton = ValidateAuthor(model.Author);
+        if (!authorValidaiton.isValid)
+            return Result.Fail(authorValidaiton.Error);
+
+        var datePublishedValidaiton = ValidateDatePublished(model.DatePublished);
+        if (!datePublishedValidaiton.isValid)
+            return Result.Fail(datePublishedValidaiton.Error);
+
+        if (bookRepository.IsDuplicatedBook(model.Title, model.Author))
+            return Result.Fail("This book already exists");
 
         var newBook = new Book
         {
-            Title = dto.Title,
-            Author = dto.Author,
-            Date = dto.Date
+            Title = model.Title,
+            Author = model.Author,
+            DatePublished = model.DatePublished
         };
 
         bookRepository.Add(newBook);
-        ReturnSuccess("The book added successful!");
+        return Result.Success("The book added successful!");
     }
 
-    public void ChangeStatus(Guid id)
+    public Result ChangeStatus(Guid id)
     {
-        if (!BookExists(id))
-            return;
+        var bookExistsResult = BookExists(id);
+        if (!bookExistsResult.isExists)
+            return Result.Fail(bookExistsResult.Error);
 
         bookRepository.ChangeStatus(id);
-        ReturnSuccess("The status of book was successfully changed");
+        return Result.Success("The status of book was successfully changed");
     }
 
-    public void Delete(Guid id)
+    public Result Delete(Guid id)
     {
-        if (!BookExists(id))
-            return;
+        var bookExistsResult = BookExists(id);
+        if (!bookExistsResult.isExists)
+            return Result.Fail(bookExistsResult.Error);
 
         bookRepository.Delete(id);
-        ReturnSuccess("The book deleted successful!");
+        return Result.Success("The book deleted successful!");
     }
 
-    public IEnumerable<BookDto> GetAll()
+    public Result<IEnumerable<BookModel>> GetAll()
     {
         var allBooks = bookRepository.GetAll();
         if (!allBooks.Any())
-            ReturnError("No books found.");
-        else
-            ReturnSuccess("The books was found.");
+            return Result<IEnumerable<BookModel>>.Fail("No books found.");
 
-        return allBooks.Select(x => new BookDto
-        {
-            Id = x.Id,
-            Title = x.Title,
-            Author = x.Author,
-            Date = x.Date,
-            BookStatus = x.BookStatus
-        });
+        var bookModels = allBooks.Select(x => new BookModel
+        (
+            x.Id,
+            x.Title,
+            x.Author,
+            x.DatePublished,
+            x.BookStatus
+        ));
+
+        return Result<IEnumerable<BookModel>>.Success("The books was found.", bookModels);
     }
 
-    public IEnumerable<BookDto> GetAllAvaliable()
+    public Result<IEnumerable<BookModel>> GetAllAvaliable()
     {
         var avaliableBooks = bookRepository.GetAllAvaliable();
         if (!avaliableBooks.Any())
-            ReturnError("No books avaliable.");
-        else
-            ReturnSuccess("The avaliable books was found.");
+            return Result<IEnumerable<BookModel>>.Fail("No books avaliable.");
 
-        return avaliableBooks.Select(x => new BookDto
-        {
-            Id = x.Id,
-            Title = x.Title,
-            Author = x.Author,
-            Date = x.Date,
-            BookStatus = x.BookStatus
-        });
+        var bookModels = avaliableBooks.Select(x => new BookModel
+        (
+            x.Id,
+            x.Title,
+            x.Author,
+            x.DatePublished,
+            x.BookStatus
+        ));
+
+        return Result<IEnumerable<BookModel>>.Success("The avaliable books was found.", bookModels);
     }
 
-    public IEnumerable<BookDto> SearchByAuthor(string author)
+    public Result<IEnumerable<BookModel>> SearchByAuthor(string author)
     {
-        if (!ValidateAuthor(author))
-            return null;
+        var authorValidaiton = ValidateAuthor(author);
+        if (!authorValidaiton.isValid)
+            return Result<IEnumerable<BookModel>>.Fail(authorValidaiton.Error);
 
         var books = bookRepository.SearchByAuthor(author);
-
         if (!books.Any())
-            ReturnError("No books found for this author.");
-        else
-            ReturnSuccess("The books was found!");
+            return Result<IEnumerable<BookModel>>.Fail("No books found for this author.");
 
-        return books.Select(x => new BookDto
-        {
-            Id = x.Id,
-            Title = x.Title,
-            Author = x.Author,
-            Date = x.Date,
-            BookStatus = x.BookStatus
-        });
+        var bookModels = books.Select(x => new BookModel
+        (
+            x.Id,
+            x.Title,
+            x.Author,
+            x.DatePublished,
+            x.BookStatus
+        ));
+
+        return Result<IEnumerable<BookModel>>.Success("The books was found!", bookModels);
     }
 
-    public IEnumerable<BookDto> SearchByTitle(string title)
+    public Result<IEnumerable<BookModel>> SearchByTitle(string title)
     {
-        if (!ValidateTitle(title))
-            return null;
+        var titleValidation = ValidateTitle(title);
+        if (!titleValidation.isValid)
+            return Result<IEnumerable<BookModel>>.Fail(titleValidation.Error);
 
         var books = bookRepository.SearchByTitle(title);
-
         if (!books.Any())
-            ReturnError("No books found for this title.");
-        else
-            ReturnSuccess("The books was found!");
+            return Result<IEnumerable<BookModel>>.Fail("No books found for this title.");
 
-        return books.Select(x => new BookDto
-        {
-            Id = x.Id,
-            Title = x.Title,
-            Author = x.Author,
-            Date = x.Date,
-            BookStatus = x.BookStatus
-        });
+        var bookModels = books.Select(x => new BookModel
+        (
+            x.Id,
+            x.Title,
+            x.Author,
+            x.DatePublished,
+            x.BookStatus
+        ));
+
+        return Result<IEnumerable<BookModel>>.Success("The books was found!", bookModels);
     }
 }

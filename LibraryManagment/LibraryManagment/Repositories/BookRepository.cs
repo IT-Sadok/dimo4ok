@@ -14,9 +14,9 @@ public class BookRepository : IBookRepository
         books = repository.GetAll().ToList();
     }
 
-    private Book GetById(Guid id)
+    private Book? GetById(Guid id)
     {
-        return books.First(x => x.Id == id);
+        return books.FirstOrDefault(x => x.Id == id);
     }
 
     public bool BookExists(Guid id)

@@ -18,10 +18,7 @@ public class JsonRepository : IDataStorage
     private List<Book> ReadFile(string filePath)
     {
         if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
-        {
-            File.WriteAllText(filePath, "[]");
             return new List<Book>();
-        }
         else
         {
             var booksJson = File.ReadAllText(filePath);

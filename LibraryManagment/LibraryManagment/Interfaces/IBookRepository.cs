@@ -8,6 +8,9 @@ public interface IBookRepository
     void Delete(Guid id);
     void ChangeStatus(Guid id);
 
+    bool BookExists(Guid id);
+    bool IsDuplicatedBook(string title, string author);
+
     IEnumerable<Book> GetAll();
     IEnumerable<Book> GetAllAvaliable();
     IEnumerable<Book> SearchByTitle(string title);

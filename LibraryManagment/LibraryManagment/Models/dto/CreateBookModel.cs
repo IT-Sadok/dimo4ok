@@ -1,8 +1,8 @@
 ﻿namespace LibraryManagment.Models.dto;
 
-public class CreateBookDTO
+public class CreateBookModel
 {
     public string Title { get; set; } = null!;
     public string Author { get; set; } = null!;
-    public DateOnly Date { get; set; }
+    public DateOnly DatePublished { get; set; }
 }
