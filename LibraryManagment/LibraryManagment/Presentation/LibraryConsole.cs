@@ -33,14 +33,14 @@ public class LibraryConsole
             {
                 case "1":
                     Console.WriteLine();
-                    AddBook();
+                    AddBookAsync();
                     DisplayAllBooks();
                     Console.WriteLine();
                     break;
 
                 case "2":
                     Console.WriteLine();
-                    DeleteBook();
+                    DeleteBookAsync();
                     DisplayAllBooks();
                     Console.WriteLine();
                     break;
@@ -71,7 +71,7 @@ public class LibraryConsole
 
                 case "7":
                     Console.WriteLine();
-                    ChangeBookStatus();
+                    ChangeBookStatusAsync();
                     Console.WriteLine();
                     break;
 
@@ -85,7 +85,7 @@ public class LibraryConsole
         }
     }
 
-    void AddBook()
+    async Task AddBookAsync()
     {
         var createBookModel = new CreateBookModel();
 
@@ -108,11 +108,11 @@ public class LibraryConsole
 
         Console.WriteLine();
 
-        var result = libraryService.Add(createBookModel);
+        var result = await libraryService.AddAsync(createBookModel);
         DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
-    void DeleteBook()
+    async Task DeleteBookAsync()
     {
         Console.Write("Enter the book id: ");
         if (!Guid.TryParse(Console.ReadLine(), out Guid id))
@@ -123,7 +123,7 @@ public class LibraryConsole
             return;
         }
 
-        var result = libraryService.Delete(id);
+        var result = await libraryService.DeleteAsync(id);
         DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
@@ -185,7 +185,7 @@ public class LibraryConsole
         }
     }
 
-    void ChangeBookStatus()
+    async Task ChangeBookStatusAsync()
     {
         Console.Write("Enter a book id that you want to borrow/return: ");
         if (!Guid.TryParse(Console.ReadLine(), out Guid id))
@@ -196,7 +196,7 @@ public class LibraryConsole
             return;
         }
 
-        var result = libraryService.ChangeStatus(id);
+        var result = await libraryService.ChangeStatusAsync(id);
 
         DisplayResultMessage(result.IsSuccess, result.Message);
 

@@ -15,10 +15,10 @@ public class JsonRepository : IDataStorage
         books = ReadFile(filePath);
     }
 
-    public void SaveToFile(IEnumerable<Book> books)
+    public async Task SaveToFileAsync(IEnumerable<Book> books)
     {
         var booksJson = JsonSerializer.Serialize(books, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(filePath, booksJson);
+        await File.WriteAllTextAsync(filePath, booksJson);
     }
 
     public IEnumerable<Book> GetAll()
@@ -33,7 +33,7 @@ public class JsonRepository : IDataStorage
         else
         {
             var booksJson = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<List<Book>>(booksJson);
+            return JsonSerializer.Deserialize<List<Book>>(booksJson) ?? new List<Book>();
         }
     }
 }

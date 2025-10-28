@@ -4,9 +4,9 @@ namespace LibraryManagment.Interfaces;
 
 public interface IBookRepository
 {
-    void Add(Book book);
-    void Delete(Guid id);
-    void ChangeStatus(Guid id);
+    Task AddAsync(Book book);
+    Task DeleteAsync(Guid id);
+    Task ChangeStatusAsync(Guid id);
 
     bool BookExists(Guid id);
     bool IsDuplicatedBook(string title, string author);

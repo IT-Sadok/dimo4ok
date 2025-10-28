@@ -14,7 +14,7 @@ public class LibraryService : ILibraryService
         this.bookRepository = bookRepository;
     }
 
-    public Result Add(CreateBookModel model)
+    public async Task<Result> AddAsync(CreateBookModel model)
     {
         var titleValidation = ValidateTitle(model.Title);
         if (!titleValidation.isValid)
@@ -38,27 +38,27 @@ public class LibraryService : ILibraryService
             DatePublished = model.DatePublished
         };
 
-        bookRepository.Add(newBook);
+        await bookRepository.AddAsync(newBook);
         return Result.Success("The book added successful!");
     }
 
-    public Result ChangeStatus(Guid id)
+    public async Task<Result> ChangeStatusAsync(Guid id)
     {
         var bookExistsResult = BookExists(id);
         if (!bookExistsResult.isExists)
             return Result.Fail(bookExistsResult.Error);
 
-        bookRepository.ChangeStatus(id);
+        await bookRepository.ChangeStatusAsync(id);
         return Result.Success("The status of book was successfully changed");
     }
 
-    public Result Delete(Guid id)
+    public async Task<Result> DeleteAsync(Guid id)
     {
         var bookExistsResult = BookExists(id);
         if (!bookExistsResult.isExists)
             return Result.Fail(bookExistsResult.Error);
 
-        bookRepository.Delete(id);
+        await bookRepository.DeleteAsync(id);
         return Result.Success("The book deleted successful!");
     }
 

@@ -7,6 +7,7 @@ public class BookRepository : IBookRepository
 {
     private readonly IDataStorage repository;
     private List<Book> books;
+    private readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1,1);
 
     public BookRepository(IDataStorage repository)
     {
@@ -24,32 +25,56 @@ public class BookRepository : IBookRepository
         return books.Any(x => x.Title == title && x.Author == author);
     }
 
-    public void Add(Book book)
+    public async Task AddAsync(Book book)
     {
-        books.Add(book);
-        repository.SaveToFile(books);
+        await semaphoreSlim.WaitAsync();
+        try
+        {
+            books.Add(book);
+            await repository.SaveToFileAsync(books);
+        }
+        finally
+        {
+            semaphoreSlim.Release(); 
+        }
     }
 
-    public void ChangeStatus(Guid id)
+    public async Task ChangeStatusAsync(Guid id)
     {
-        var bookForChange = GetById(id);
+        await semaphoreSlim.WaitAsync();
+        try
+        {
+            var bookForChange = GetById(id);
 
-        if (bookForChange.BookStatus == BookStatus.Available)
-            bookForChange.BookStatus = BookStatus.Borrowed;
-        else
-            bookForChange.BookStatus = BookStatus.Available;
+            if (bookForChange.BookStatus == BookStatus.Available)
+                bookForChange.BookStatus = BookStatus.Borrowed;
+            else
+                bookForChange.BookStatus = BookStatus.Available;
 
-        repository.SaveToFile(books);
+            await repository.SaveToFileAsync(books);
+        }
+        finally
+        {
+            semaphoreSlim.Release();
+        }
     }
 
-    public void Delete(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
-        var bookToDelete = GetById(id);
-        books.Remove(bookToDelete);
-        repository.SaveToFile(books);
+        await semaphoreSlim.WaitAsync();
+        try
+        {
+            var bookToDelete = GetById(id);
+            books.Remove(bookToDelete);
+            await repository.SaveToFileAsync(books);
+        }
+        finally
+        {
+            semaphoreSlim.Release();
+        }
     }
 
-    public IEnumerable<Book> GetAll()
+    public IEnumerable<Book> GetAll() 
     {
         return books;
     }

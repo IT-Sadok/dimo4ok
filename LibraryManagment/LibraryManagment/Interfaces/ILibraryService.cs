@@ -5,9 +5,9 @@ namespace LibraryManagment.Interfaces;
 
 public interface ILibraryService
 {
-    Result Add(CreateBookModel dto);
-    Result Delete(Guid id);
-    Result ChangeStatus(Guid id);
+    Task<Result> AddAsync(CreateBookModel dto);
+    Task<Result> DeleteAsync(Guid id);
+    Task<Result> ChangeStatusAsync(Guid id);
 
     Result<IEnumerable<BookModel>> SearchByTitle(string title);
     Result<IEnumerable<BookModel>> SearchByAuthor(string author);

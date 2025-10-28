@@ -4,6 +4,6 @@ namespace LibraryManagment.Interfaces;
 
 public interface IDataStorage
 {
-    void SaveToFile(IEnumerable<Book> books);
+    Task SaveToFileAsync(IEnumerable<Book> books);
     IEnumerable<Book> GetAll();
 }
