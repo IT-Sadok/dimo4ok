@@ -14,11 +14,6 @@ public class BookRepository : IBookRepository
         books = repository.GetAll().ToList();
     }
 
-    private Book? GetById(Guid id)
-    {
-        return books.FirstOrDefault(x => x.Id == id);
-    }
-
     public bool BookExists(Guid id)
     {
         return books.Exists(x => x.Id == id);
@@ -72,5 +67,9 @@ public class BookRepository : IBookRepository
     public IEnumerable<Book> SearchByTitle(string title)
     {
         return books.Where(x => x.Title == title);
+    }
+    private Book? GetById(Guid id)
+    {
+        return books.FirstOrDefault(x => x.Id == id);
     }
 }

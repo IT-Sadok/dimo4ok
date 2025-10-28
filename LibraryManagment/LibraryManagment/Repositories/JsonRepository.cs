@@ -15,17 +15,6 @@ public class JsonRepository : IDataStorage
         books = ReadFile(filePath);
     }
 
-    private List<Book> ReadFile(string filePath)
-    {
-        if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
-            return new List<Book>();
-        else
-        {
-            var booksJson = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<List<Book>>(booksJson);
-        }
-    }
-
     public void SaveToFile(IEnumerable<Book> books)
     {
         var booksJson = JsonSerializer.Serialize(books, new JsonSerializerOptions { WriteIndented = true });
@@ -35,5 +24,16 @@ public class JsonRepository : IDataStorage
     public IEnumerable<Book> GetAll()
     {
         return books;
+    }
+
+    private List<Book> ReadFile(string filePath)
+    {
+        if (!File.Exists(filePath) || new FileInfo(filePath).Length == 0)
+            return new List<Book>();
+        else
+        {
+            var booksJson = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<List<Book>>(booksJson);
+        }
     }
 }
