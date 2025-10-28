@@ -12,7 +12,7 @@ public class BookRepository : IBookRepository
     public BookRepository(IDataStorage repository)
     {
         this.repository = repository;
-        books = repository.GetAll().ToList();
+        RefreshBooks();
     }
 
     public bool BookExists(Guid id)
@@ -30,6 +30,8 @@ public class BookRepository : IBookRepository
         await semaphoreSlim.WaitAsync();
         try
         {
+            RefreshBooks();
+
             books.Add(book);
             await repository.SaveToFileAsync(books);
         }
@@ -44,6 +46,8 @@ public class BookRepository : IBookRepository
         await semaphoreSlim.WaitAsync();
         try
         {
+            RefreshBooks();
+
             var bookForChange = GetById(id);
 
             if (bookForChange.BookStatus == BookStatus.Available)
@@ -64,6 +68,8 @@ public class BookRepository : IBookRepository
         await semaphoreSlim.WaitAsync();
         try
         {
+            RefreshBooks();
+
             var bookToDelete = GetById(id);
             books.Remove(bookToDelete);
             await repository.SaveToFileAsync(books);
@@ -93,8 +99,14 @@ public class BookRepository : IBookRepository
     {
         return books.Where(x => x.Title == title);
     }
+
     private Book? GetById(Guid id)
     {
         return books.FirstOrDefault(x => x.Id == id);
+    }
+
+    private void RefreshBooks()
+    {
+        books = repository.GetAll().ToList();
     }
 }

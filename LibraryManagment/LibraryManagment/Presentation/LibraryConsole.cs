@@ -1,20 +1,18 @@
-﻿using LibraryManagment.Models;
+﻿using LibraryManagment.Interfaces;
 using LibraryManagment.Models.dto;
-using LibraryManagment.Services;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LibraryManagment.Presentation;
 
 public class LibraryConsole
 {
-    private readonly LibraryService libraryService;
+    private readonly ILibraryService libraryService;
 
-    public LibraryConsole(LibraryService libraryService)
+    public LibraryConsole(ILibraryService libraryService)
     {
         this.libraryService = libraryService;
     }
 
-    public void Run()
+    public async Task RunAsync()
     {
         while (true)
         {
@@ -33,14 +31,14 @@ public class LibraryConsole
             {
                 case "1":
                     Console.WriteLine();
-                    AddBookAsync();
+                    await AddBookAsync();
                     DisplayAllBooks();
                     Console.WriteLine();
                     break;
 
                 case "2":
                     Console.WriteLine();
-                    DeleteBookAsync();
+                    await DeleteBookAsync();
                     DisplayAllBooks();
                     Console.WriteLine();
                     break;
@@ -71,7 +69,7 @@ public class LibraryConsole
 
                 case "7":
                     Console.WriteLine();
-                    ChangeBookStatusAsync();
+                    await ChangeBookStatusAsync();
                     Console.WriteLine();
                     break;
 
@@ -85,7 +83,7 @@ public class LibraryConsole
         }
     }
 
-    async Task AddBookAsync()
+    private async Task AddBookAsync()
     {
         var createBookModel = new CreateBookModel();
 
@@ -112,7 +110,7 @@ public class LibraryConsole
         DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
-    async Task DeleteBookAsync()
+    private async Task DeleteBookAsync()
     {
         Console.Write("Enter the book id: ");
         if (!Guid.TryParse(Console.ReadLine(), out Guid id))
@@ -127,20 +125,20 @@ public class LibraryConsole
         DisplayResultMessage(result.IsSuccess, result.Message);
     }
 
-    void DisplayAllBooks()
+    private void DisplayAllBooks()
     {
         var result = libraryService.GetAll();
 
         DisplayResultMessage(result.IsSuccess, result.Message);
 
-        if(result.IsSuccess)
+        if (result.IsSuccess)
         {
             Console.WriteLine("The list of books:");
             DisplayBooks(result.Data);
         }
     }
 
-    void DisplayBooksByAuthor()
+    private void DisplayBooksByAuthor()
     {
         Console.Write("Enter the book author: ");
         string author = Console.ReadLine();
@@ -149,14 +147,14 @@ public class LibraryConsole
 
         DisplayResultMessage(result.IsSuccess, result.Message);
 
-        if(result.IsSuccess)
+        if (result.IsSuccess)
         {
             Console.WriteLine("The list of books by author:");
             DisplayBooks(result.Data);
         }
     }
 
-    void DisplayBooksByTitle()
+    private void DisplayBooksByTitle()
     {
         Console.Write("Enter the book title: ");
         string title = Console.ReadLine();
@@ -172,7 +170,7 @@ public class LibraryConsole
         }
     }
 
-    void DisplayAvaliableBooks()
+    private void DisplayAvaliableBooks()
     {
         var result = libraryService.GetAllAvaliable();
 
@@ -185,7 +183,7 @@ public class LibraryConsole
         }
     }
 
-    async Task ChangeBookStatusAsync()
+    private async Task ChangeBookStatusAsync()
     {
         Console.Write("Enter a book id that you want to borrow/return: ");
         if (!Guid.TryParse(Console.ReadLine(), out Guid id))
@@ -200,11 +198,11 @@ public class LibraryConsole
 
         DisplayResultMessage(result.IsSuccess, result.Message);
 
-        if(result.IsSuccess)
+        if (result.IsSuccess)
             DisplayAllBooks();
     }
 
-    void DisplayBooks(IEnumerable<BookModel> books)
+    private void DisplayBooks(IEnumerable<BookModel> books)
     {
         foreach (var book in books)
         {
@@ -212,7 +210,7 @@ public class LibraryConsole
         }
     }
 
-    public void DisplayResultMessage(bool success, string message)
+    private void DisplayResultMessage(bool success, string message)
     {
         if (!success)
         {
